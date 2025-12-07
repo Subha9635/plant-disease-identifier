@@ -14,23 +14,23 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------------------
-# 2. THE "NUCLEAR" CSS FIX (Forces consistent look everywhere)
+# 2. DARK MODE CSS
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* 1. Force Light Theme & Background on EVERYTHING */
+    /* 1. Force Black Background on EVERYTHING */
     [data-testid="stAppViewContainer"], .stApp, header, footer, .block-container {
-        background-color: #F5F5F7 !important; /* Apple Light Grey */
-        color: #1D1D1F !important; /* Force Dark Text */
+        background-color: #000000 !important; /* Deep Black */
+        color: #F5F5F7 !important; /* Light Text */
     }
     
-    /* 2. Remove top colored bar */
+    /* 2. Hide Top Header */
     header[data-testid="stHeader"] {
-        background-color: #F5F5F7 !important;
+        background-color: #000000 !important;
         visibility: hidden;
     }
 
-    /* 3. Center the App on Desktop (Phone View on Laptop) */
+    /* 3. Center App on Desktop */
     .block-container {
         max-width: 600px;
         padding-top: 2rem;
@@ -45,25 +45,26 @@ st.markdown("""
     
     /* 5. Headings */
     h1, h2, h3 {
-        color: #1D1D1F !important;
+        color: #FFFFFF !important; /* Pure White */
         font-weight: 600;
         letter-spacing: -0.5px;
     }
 
-    /* 6. Result Card (White floating box) */
+    /* 6. Result Card (Dark Grey floating box) */
     .result-card {
-        background-color: white !important;
+        background-color: #1c1c1e !important; /* Apple Dark Grey */
         padding: 2rem;
         border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5); /* Darker shadow */
         text-align: center;
         margin-top: 2rem;
-        color: #1D1D1F !important;
+        color: #FFFFFF !important;
+        border: 1px solid #333; /* Subtle border for definition */
     }
 
-    /* 7. Buttons (Apple Blue Pills) */
+    /* 7. Buttons (Keep Blue for contrast) */
     div.stButton > button {
-        background-color: #0071E3 !important;
+        background-color: #0A84FF !important; /* Brighter Blue for Dark Mode */
         color: white !important;
         border-radius: 980px;
         border: none;
@@ -72,20 +73,17 @@ st.markdown("""
         font-weight: 500;
         width: 100%;
         transition: transform 0.1s ease-in-out;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
     div.stButton > button:hover {
-        background-color: #0077ED !important;
+        background-color: #0071E3 !important;
         transform: scale(1.02);
-    }
-    div.stButton > button:active {
-        transform: scale(0.95);
     }
 
     /* 8. Tutorial Text */
     .tutorial-text {
         font-size: 14px;
-        color: #86868b !important;
+        color: #98989d !important; /* Light Grey text */
         margin-bottom: 5px;
     }
     
@@ -187,11 +185,12 @@ if source_image:
     # Display Result
     display_name = predicted_class.replace("___", " • ").replace("_", " ")
 
+    # Updated Dark Mode Card HTML
     html_content = f"""
     <div class="result-card">
-        <h3 style="color: #86868b !important; font-size: 14px; text-transform: uppercase;">Diagnosis</h3>
-        <h1 style="margin: 10px 0; font-size: 32px; color: #1D1D1F !important;">{display_name}</h1>
-        <p style="color: {'#1d1d1f' if confidence > 70 else '#ff3b30'} !important; font-weight: 500;">
+        <h3 style="color: #98989d !important; font-size: 14px; text-transform: uppercase;">Diagnosis</h3>
+        <h1 style="margin: 10px 0; font-size: 32px; color: #FFFFFF !important;">{display_name}</h1>
+        <p style="color: {'#FFFFFF' if confidence > 70 else '#ff453a'} !important; font-weight: 500;">
             Confidence: {confidence:.1f}%
         </p>
     </div>
