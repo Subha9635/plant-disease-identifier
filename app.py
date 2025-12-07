@@ -18,9 +18,18 @@ st.set_page_config(
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* --- 1. ANIMATED BACKGROUND --- */
+    /* --- 1. ANIMATED BACKGROUND (Colors Preserved) --- */
+    @keyframes gradientAnimation {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
     [data-testid="stAppViewContainer"] {
-        background: radial-gradient(circle at 50% -20%, #2b2b2b, #000000);
+        /* Using the exact colors from your snippet (#2b2b2b, #000000) */
+        background: linear-gradient(-45deg, #2b2b2b, #000000, #2b2b2b, #1a1a1a);
+        background-size: 400% 400%;
+        animation: gradientAnimation 15s ease infinite;
         background-attachment: fixed;
         color: #FFFFFF;
     }
@@ -68,7 +77,7 @@ st.markdown("""
         letter-spacing: -0.5px;
         text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
-    p, label {
+    p, label, .stMarkdown, .stExpander p {
         color: #E0E0E0 !important;
     }
 
@@ -101,6 +110,13 @@ st.markdown("""
         display: block;
         margin-left: auto;
         margin-right: auto;
+    }
+    
+    /* Expander Styling */
+    div[data-testid="stExpander"] {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -144,6 +160,15 @@ col_head_1, col_head_2 = st.columns([1, 4]) # Logo left, Title right
 with col_head_2:
     st.title("Plant ID Pro")
     st.markdown("#### AI-Powered Disease Diagnostics")
+
+# --- 🆕 "HOW TO USE" SECTION ---
+st.write(" ") # Spacer
+with st.expander("ℹ️ How to Use This App"):
+    st.markdown("""
+    1. **Upload or Scan:** Use the buttons below to upload a photo or open your camera.
+    2. **Center the Leaf:** Ensure the plant leaf is clearly visible and well-lit.
+    3. **Get Diagnosis:** The AI will instantly identify the disease and check for health markers.
+    """)
 
 # --- MAIN CONTROLS (Responsive Grid) ---
 st.markdown("<br>", unsafe_allow_html=True) # Spacer
