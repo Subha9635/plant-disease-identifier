@@ -4,18 +4,67 @@ import numpy as np
 from PIL import Image, ImageOps
 
 # ----------------------------------------------------------------------------------
-# MODEL LOADING AND SETUP
+# 1. CONFIGURATION & STYLE
 # ----------------------------------------------------------------------------------
+st.set_page_config(
+    page_title="Plant ID Pro",
+    page_icon="🌿",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# 1. Load Model (Cached to prevent reloading)
+# Custom CSS for modern look
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #F5F5F7;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    h1, h2, h3 {
+        color: #1D1D1F;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+    .result-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        text-align: center;
+        margin-top: 2rem;
+    }
+    div.stButton > button {
+        background-color: #0071E3;
+        color: white;
+        border-radius: 980px;
+        border: none;
+        padding: 10px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    div.stButton > button:hover {
+        background-color: #0077ED;
+        transform: scale(1.02);
+    }
+    /* Style for the tutorial text */
+    .tutorial-text {
+        font-size: 14px;
+        color: #86868b;
+        margin-bottom: 5px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ----------------------------------------------------------------------------------
+# 2. MODEL SETUP
+# ----------------------------------------------------------------------------------
 @st.cache_resource
 def load_model():
-    # Make sure this file matches the one you downloaded from Colab
     return tf.keras.models.load_model('plant_disease_model.h5')
 
 model = load_model()
 
-# 2. Define Classes (Updated to match YOUR specific Colab training data)
 CLASS_NAMES = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy', 
     'Background_without_leaves', 'Blueberry___healthy', 'Cherry___Powdery_mildew', 
@@ -33,73 +82,86 @@ CLASS_NAMES = [
     'Tomato___Tomato_mosaic_virus', 'Tomato___healthy'
 ]
 
-CONFIDENCE_THRESHOLD = 60.0 # Adjusted for the new model
-
 # ----------------------------------------------------------------------------------
-# UI AND INPUT LOGIC
+# 3. UI LAYOUT & TUTORIAL
 # ----------------------------------------------------------------------------------
 
-st.set_page_config(page_title="Plant Disease Scanner", layout="wide")
-st.title("🌿 Plant Disease Identifier")
-st.markdown("Scan a leaf using your camera or upload an image.")
+if 'camera_active' not in st.session_state:
+    st.session_state['camera_active'] = False
 
-st.markdown("---")
+# Main Title
+st.title("Plant Health Check")
+st.markdown("### Professional Grade Disease Identification")
 
+# --- 🆕 ADDED TUTORIAL SECTION HERE ---
+with st.expander("ℹ️ How to use this app"):
+    st.markdown("""
+    <div style="padding: 10px;">
+        <p class="tutorial-text"><strong>Step 1:</strong> Select a clear photo of a <b>single plant leaf</b>.</p>
+        <p class="tutorial-text"><strong>Step 2:</strong> You can either <b>upload</b> from your gallery or use the <b>camera</b>.</p>
+        <p class="tutorial-text"><strong>Step 3:</strong> The AI will analyze the leaf pattern and provide a diagnosis instantly.</p>
+        <p style="font-size: 12px; color: #ff3b30; margin-top: 10px;">* Ensure the image is well-lit and focused on the leaf surface.</p>
+    </div>
+    """, unsafe_allow_html=True)
+# --------------------------------------
+
+st.write(" ") # Spacer
+
+# Controls
 col1, col2 = st.columns(2)
+source_image = None
 
 with col1:
-    uploaded_file = st.file_uploader("📁 1. Upload Image", type=["jpg", "jpeg", "png"])
+    st.markdown("#### 📤 Upload Photo")
+    uploaded_file = st.file_uploader("Select from library", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
+    if uploaded_file:
+        source_image = Image.open(uploaded_file)
+        st.session_state['camera_active'] = False 
 
 with col2:
-    camera_input = st.camera_input("📸 2. Scan Leaf")
+    st.markdown("#### 📸 Take Picture")
+    if st.button("Activate Camera"):
+        st.session_state['camera_active'] = not st.session_state['camera_active']
 
-# Determine input source
-if uploaded_file is not None:
-    source_file = uploaded_file
-elif camera_input is not None:
-    source_file = camera_input
-else:
-    source_file = None
+if st.session_state['camera_active']:
+    st.write("Active Camera Feed:")
+    camera_pic = st.camera_input("Snap a photo", label_visibility="hidden")
+    if camera_pic:
+        source_image = Image.open(camera_pic)
 
-if source_file is not None:
-    
-    # --- Image Processing ---
-    image = Image.open(source_file)
-    st.image(image, caption="Input Image", width=300)
-    
-    # Resize to 224x224
-    # Using ImageOps.fit ensures we don't distort the aspect ratio
-    image = ImageOps.fit(image, (224, 224), Image.Resampling.LANCZOS)
-    img_array = np.array(image)
-    
-    # ⚠️ CRITICAL CHANGE FOR YOUR MODEL:
-    # We do NOT divide by 255.0 here because your model has a Rescaling layer inside it.
-    img_array = np.expand_dims(img_array, axis=0) 
+# ----------------------------------------------------------------------------------
+# 4. PREDICTION LOGIC
+# ----------------------------------------------------------------------------------
 
-    # --- Prediction ---
-    with st.spinner('Analyzing...'):
+if source_image:
+    st.image(source_image, caption="Analysis Target", width=400)
+    
+    with st.spinner("Analyzing leaf structure..."):
+        image = ImageOps.fit(source_image, (224, 224), Image.Resampling.LANCZOS)
+        img_array = np.array(image)
+        img_array = np.expand_dims(img_array, axis=0)
+
         predictions = model.predict(img_array)
         predicted_index = np.argmax(predictions[0])
         predicted_class = CLASS_NAMES[predicted_index]
         confidence = np.max(predictions[0]) * 100
 
-    st.markdown("---")
-    
-    # --- Results ---
-    if confidence < CONFIDENCE_THRESHOLD:
-        st.warning(f"⚠️ Low Confidence ({confidence:.2f}%). Are you sure this is a plant leaf?")
-    
+    display_name = predicted_class.replace("___", " • ").replace("_", " ")
+
+    html_content = f"""
+    <div class="result-card">
+        <h3 style="color: #86868b; font-size: 14px; text-transform: uppercase;">Diagnosis</h3>
+        <h1 style="margin: 10px 0; font-size: 32px;">{display_name}</h1>
+        <p style="color: {'#1d1d1f' if confidence > 70 else '#ff3b30'}; font-weight: 500;">
+            Confidence: {confidence:.1f}%
+        </p>
+    </div>
+    """
+    st.markdown(html_content, unsafe_allow_html=True)
+
+    if "healthy" in predicted_class.lower():
+        st.success("Analysis Complete: No threats detected.")
     elif predicted_class == 'Background_without_leaves':
-        st.error("❌ No leaf detected. Please verify the image.")
-        
+        st.warning("Analysis Inconclusive: No leaf structure found.")
     else:
-        clean_name = predicted_class.replace("___", " - ").replace("_", " ")
-        st.subheader(f"Result: **{clean_name}**")
-        st.caption(f"Confidence: **{confidence:.2f}%**")
-        
-        if "healthy" in predicted_class.lower():
-            st.balloons()
-            st.success("✅ Plant appears healthy.")
-        else:
-            st.error("🚨 Disease Detected.")
-            st.info("Check recommended treatments for this condition.")
+        st.info("Analysis Complete: Disease markers identified. Treatment recommended.")
