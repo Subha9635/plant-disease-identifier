@@ -8,7 +8,7 @@ import numpy as np
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-MODEL_PATH = 'plant_disease_model.h5'
+MODEL_PATH = 'plant_village_model.h5'
 CLASS_NAMES = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy', 
     'Background_without_leaves', 'Blueberry___healthy', 'Cherry___Powdery_mildew', 
