@@ -4,65 +4,99 @@ import numpy as np
 from PIL import Image, ImageOps
 
 # ----------------------------------------------------------------------------------
-# 1. CONFIGURATION & STYLE (The "Apple" Look)
+# 1. CONFIGURATION
 # ----------------------------------------------------------------------------------
 st.set_page_config(
     page_title="Plant ID Pro",
     page_icon="🌿",
-    layout="centered", # Centered looks more "App-like" on desktop
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Apple-like Aesthetics
+# ----------------------------------------------------------------------------------
+# 2. THE "NUCLEAR" CSS FIX (Forces consistent look everywhere)
+# ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* Main Background */
-    .stApp {
-        background-color: #F5F5F7; /* Apple Light Grey */
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* 1. Force Light Theme & Background on EVERYTHING */
+    [data-testid="stAppViewContainer"], .stApp, header, footer, .block-container {
+        background-color: #F5F5F7 !important; /* Apple Light Grey */
+        color: #1D1D1F !important; /* Force Dark Text */
     }
     
-    /* Headings */
+    /* 2. Remove top colored bar */
+    header[data-testid="stHeader"] {
+        background-color: #F5F5F7 !important;
+        visibility: hidden;
+    }
+
+    /* 3. Center the App on Desktop (Phone View on Laptop) */
+    .block-container {
+        max-width: 600px;
+        padding-top: 2rem;
+        padding-bottom: 5rem;
+        margin: auto;
+    }
+
+    /* 4. Fonts */
+    html, body, [class*="css"] {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    }
+    
+    /* 5. Headings */
     h1, h2, h3 {
-        color: #1D1D1F;
+        color: #1D1D1F !important;
         font-weight: 600;
         letter-spacing: -0.5px;
     }
-    
-    /* Modern Card Style for Results */
+
+    /* 6. Result Card (White floating box) */
     .result-card {
-        background-color: white;
+        background-color: white !important;
         padding: 2rem;
         border-radius: 20px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         text-align: center;
         margin-top: 2rem;
+        color: #1D1D1F !important;
     }
-    
-    /* Hide the default Streamlit main menu and footer for cleanliness */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    
-    /* Custom Button Styling (Apple Blue Pills) */
+
+    /* 7. Buttons (Apple Blue Pills) */
     div.stButton > button {
-        background-color: #0071E3;
-        color: white;
-        border-radius: 980px; /* Pill shape */
+        background-color: #0071E3 !important;
+        color: white !important;
+        border-radius: 980px;
         border: none;
-        padding: 10px 24px;
+        padding: 12px 24px;
         font-size: 16px;
         font-weight: 500;
-        transition: all 0.2s ease;
+        width: 100%;
+        transition: transform 0.1s ease-in-out;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     div.stButton > button:hover {
-        background-color: #0077ED;
+        background-color: #0077ED !important;
         transform: scale(1.02);
     }
+    div.stButton > button:active {
+        transform: scale(0.95);
+    }
+
+    /* 8. Tutorial Text */
+    .tutorial-text {
+        font-size: 14px;
+        color: #86868b !important;
+        margin-bottom: 5px;
+    }
+    
+    /* 9. Hide Default Streamlit Elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------------------
-# 2. MODEL SETUP
+# 3. MODEL SETUP
 # ----------------------------------------------------------------------------------
 @st.cache_resource
 def load_model():
@@ -88,85 +122,82 @@ CLASS_NAMES = [
 ]
 
 # ----------------------------------------------------------------------------------
-# 3. UI LOGIC (Camera Toggle)
+# 4. UI LOGIC
 # ----------------------------------------------------------------------------------
 
-# Initialize session state for camera visibility
 if 'camera_active' not in st.session_state:
     st.session_state['camera_active'] = False
 
-# Header
+# HEADER
 st.title("Plant Health Check")
 st.markdown("### Professional Grade Disease Identification")
+
+# TUTORIAL
+with st.expander("ℹ️ How to use this app"):
+    st.markdown("""
+    <div style="padding: 10px;">
+        <p class="tutorial-text"><strong>Step 1:</strong> Select a clear photo of a <b>single plant leaf</b>.</p>
+        <p class="tutorial-text"><strong>Step 2:</strong> You can either <b>upload</b> from your gallery or use the <b>camera</b>.</p>
+        <p class="tutorial-text"><strong>Step 3:</strong> The AI will analyze the leaf pattern and provide a diagnosis instantly.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
 st.write(" ") # Spacer
 
-# --- CONTROLS ---
-# We use columns to center the buttons or layout nicely
+# INPUT CONTROLS
 col1, col2 = st.columns(2)
-
 source_image = None
 
 with col1:
-    st.markdown("#### 📤 Upload Photo")
+    st.markdown("#### 📤 Upload")
     uploaded_file = st.file_uploader("Select from library", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
     if uploaded_file:
         source_image = Image.open(uploaded_file)
-        # Turn off camera if upload is used
         st.session_state['camera_active'] = False 
 
 with col2:
-    st.markdown("#### 📸 Take Picture")
-    # Toggle button
+    st.markdown("#### 📸 Camera")
     if st.button("Activate Camera"):
         st.session_state['camera_active'] = not st.session_state['camera_active']
 
-# --- CAMERA INPUT SECTION ---
-# Only show the camera widget if the state is True
 if st.session_state['camera_active']:
-    st.write("Context: Active Camera Feed")
+    st.write("Active Camera Feed:")
     camera_pic = st.camera_input("Snap a photo", label_visibility="hidden")
     if camera_pic:
         source_image = Image.open(camera_pic)
 
 # ----------------------------------------------------------------------------------
-# 4. PREDICTION & RESULTS
+# 5. PREDICTION LOGIC
 # ----------------------------------------------------------------------------------
 
 if source_image:
-    # Display the image cleanly
+    st.write(" ")
     st.image(source_image, caption="Analysis Target", width=400)
     
-    # Progress Bar for "Scanning" effect
     with st.spinner("Analyzing leaf structure..."):
-        # Preprocess
         image = ImageOps.fit(source_image, (224, 224), Image.Resampling.LANCZOS)
         img_array = np.array(image)
         img_array = np.expand_dims(img_array, axis=0)
 
-        # Predict
         predictions = model.predict(img_array)
         predicted_index = np.argmax(predictions[0])
         predicted_class = CLASS_NAMES[predicted_index]
         confidence = np.max(predictions[0]) * 100
 
-    # --- THE "MODERN CARD" RESULT DISPLAY ---
-    
-    # Clean up the name (Remove underscores)
+    # Display Result
     display_name = predicted_class.replace("___", " • ").replace("_", " ")
 
-    # Custom HTML for the Result Card
     html_content = f"""
     <div class="result-card">
-        <h3 style="color: #86868b; font-size: 14px; text-transform: uppercase;">Diagnosis</h3>
-        <h1 style="margin: 10px 0; font-size: 32px;">{display_name}</h1>
-        <p style="color: {'#1d1d1f' if confidence > 70 else '#ff3b30'}; font-weight: 500;">
+        <h3 style="color: #86868b !important; font-size: 14px; text-transform: uppercase;">Diagnosis</h3>
+        <h1 style="margin: 10px 0; font-size: 32px; color: #1D1D1F !important;">{display_name}</h1>
+        <p style="color: {'#1d1d1f' if confidence > 70 else '#ff3b30'} !important; font-weight: 500;">
             Confidence: {confidence:.1f}%
         </p>
     </div>
     """
     st.markdown(html_content, unsafe_allow_html=True)
 
-    # Treatment Section (Optional polish)
     if "healthy" in predicted_class.lower():
         st.success("Analysis Complete: No threats detected.")
     elif predicted_class == 'Background_without_leaves':
