@@ -7,7 +7,7 @@ from PIL import Image, ImageOps
 # 1. CONFIGURATION
 # ----------------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Plant Disease Identification Through Scanning",
+    page_title="Plant Disease Identification Through Scanning☘️",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="collapsed"
