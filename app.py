@@ -13,18 +13,36 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for modern look
+# Custom CSS for modern look (Fixes Desktop White Background)
 st.markdown("""
     <style>
+    /* 1. Force background color on the whole browser window */
+    [data-testid="stAppViewContainer"] {
+        background-color: #F5F5F7; /* Apple Light Grey */
+    }
+    
+    /* 2. Fix the main app container */
     .stApp {
         background-color: #F5F5F7;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+    
+    /* 3. Center the layout on desktop and limit width (Like a phone app on a screen) */
+    .block-container {
+        max-width: 600px; /* Constrain width for cleaner look */
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        margin: auto; /* Center it */
+    }
+
+    /* Headings */
     h1, h2, h3 {
         color: #1D1D1F;
         font-weight: 600;
         letter-spacing: -0.5px;
     }
+    
+    /* Modern Card Style for Results */
     .result-card {
         background-color: white;
         padding: 2rem;
@@ -33,6 +51,8 @@ st.markdown("""
         text-align: center;
         margin-top: 2rem;
     }
+    
+    /* Button Styling */
     div.stButton > button {
         background-color: #0071E3;
         color: white;
@@ -41,18 +61,25 @@ st.markdown("""
         padding: 10px 24px;
         font-size: 16px;
         font-weight: 500;
+        width: 100%; /* Make buttons full width for better touch target */
         transition: all 0.2s ease;
     }
     div.stButton > button:hover {
         background-color: #0077ED;
         transform: scale(1.02);
     }
-    /* Style for the tutorial text */
+    
+    /* Tutorial Text */
     .tutorial-text {
         font-size: 14px;
         color: #86868b;
         margin-bottom: 5px;
     }
+    
+    /* Hide Default Menus */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;} /* Hides the top colored bar */
     </style>
 """, unsafe_allow_html=True)
 
