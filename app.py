@@ -3,10 +3,13 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# --- CONFIGURATION ---
-MODEL_PATH = 'plant_disease_model.h5'
+# --- SET UP ---
+# Hide warnings to keep the app clean
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# Your EXACT Class Names from Colab
+# --- CONSTANTS ---
+MODEL_PATH = 'plant_disease_model.h5'
 CLASS_NAMES = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy', 
     'Background_without_leaves', 'Blueberry___healthy', 'Cherry___Powdery_mildew', 
@@ -24,54 +27,26 @@ CLASS_NAMES = [
     'Tomato___Tomato_mosaic_virus', 'Tomato___healthy'
 ]
 
-# Load Model
+# --- LOAD MODEL ---
 @st.cache_resource
 def load_model():
     return tf.keras.models.load_model(MODEL_PATH)
 
-model = load_model()
-
-# --- HELPER FUNCTIONS ---
-def clean_class_name(name):
-    """Converts 'Apple___Apple_scab' to 'Apple - Apple Scab'"""
-    if name == 'Background_without_leaves':
-        return "Unknown / Background"
-    
-    # Replace the triple underscore with a clean separator
-    clean_name = name.replace("___", " - ").replace("_", " ")
-    return clean_name.title()
-
-def get_treatment_info(class_name):
-    # Dictionary of treatments
-    treatments = {
-        'Apple___Apple_scab': "Apply fungicides like captan or myclobutanil. Rake up and destroy fallen leaves to reduce spread.",
-        'Potato___Early_blight': "Use copper-based fungicides. Rotate crops and ensure good air circulation.",
-        'Potato___Late_blight': "⚠️ Serious! Remove infected plants immediately. Apply fungicides containing chlorothalonil.",
-        'Tomato___Bacterial_spot': "Apply copper sprays. Avoid overhead watering to reduce spread.",
-        'Tomato___Early_blight': "Mulch soil to prevent splashing. Prune bottom leaves to improve airflow.",
-        'Corn___Common_rust': "Plant resistant varieties. Apply fungicides if infection is severe early in the season.",
-        'Background_without_leaves': "Please upload a clear image of a plant leaf."
-    }
-    
-    # Logic: If healthy, say so. If not in list, give general advice.
-    if "healthy" in class_name.lower():
-        return "✅ No treatment needed. Keep monitoring water and nutrients."
-    
-    return treatments.get(class_name, "Consult a local agricultural expert for specific treatment options for this condition.")
-
-# --- UI DESIGN ---
+# --- UI ---
 st.title("🌿 Plant Disease Identifier")
-st.write("Upload a photo of a plant leaf to identify diseases.")
+st.markdown("Upload a plant leaf image to detect diseases.")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image', use_column_width=True)
-    
-    if st.button('Analyze Plant'):
-        with st.spinner('Analyzing...'):
+
+    if st.button('Analyze'):
+        with st.spinner('Processing...'):
             try:
+                model = load_model()
+
                 # Preprocess
                 img = image.resize((224, 224))
                 img_array = tf.keras.utils.img_to_array(img)
@@ -79,23 +54,12 @@ if uploaded_file is not None:
 
                 # Predict
                 predictions = model.predict(img_array)
-                predicted_index = np.argmax(predictions[0])
-                predicted_raw_name = CLASS_NAMES[predicted_index]
+                predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
                 confidence = 100 * np.max(predictions[0])
 
-                # Display Results
-                st.divider()
-                
-                # Special case for background
-                if predicted_raw_name == 'Background_without_leaves':
-                    st.warning("⚠️ No leaf detected. Please try a clearer image.")
-                else:
-                    display_name = clean_class_name(predicted_raw_name)
-                    st.success(f"Result: **{display_name}**")
-                    st.info(f"Confidence: {confidence:.2f}%")
-                    
-                    st.subheader("💡 Recommendation")
-                    st.write(get_treatment_info(predicted_raw_name))
+                # Output
+                st.success(f"Prediction: {predicted_class}")
+                st.info(f"Confidence: {confidence:.2f}%")
 
             except Exception as e:
                 st.error(f"Error: {e}")
