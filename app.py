@@ -9,89 +9,99 @@ from PIL import Image, ImageOps
 st.set_page_config(
     page_title="Plant ID Pro",
     page_icon="🌿",
-    layout="centered",
+    layout="wide", # 🟢 CRITICAL: Switches to wide mode for Laptop use
     initial_sidebar_state="collapsed"
 )
 
 # ----------------------------------------------------------------------------------
-# 2. THE "NUCLEAR" CSS FIX (Forces consistent look everywhere)
+# 2. DYNAMIC "GLASS DARK" CSS
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* 1. Force Light Theme & Background on EVERYTHING */
-    [data-testid="stAppViewContainer"], .stApp, header, footer, .block-container {
-        background-color: #F5F5F7 !important; /* Apple Light Grey */
-        color: #1D1D1F !important; /* Force Dark Text */
+    /* --- 1. ANIMATED BACKGROUND --- */
+    [data-testid="stAppViewContainer"] {
+        background: radial-gradient(circle at 50% -20%, #2b2b2b, #000000);
+        background-attachment: fixed;
+        color: #FFFFFF;
     }
     
-    /* 2. Remove top colored bar */
-    header[data-testid="stHeader"] {
-        background-color: #F5F5F7 !important;
-        visibility: hidden;
-    }
-
-    /* 3. Center the App on Desktop (Phone View on Laptop) */
+    /* --- 2. RESPONSIVE CONTAINER (The "Dynamic Spacing") --- */
     .block-container {
-        max-width: 600px;
         padding-top: 2rem;
         padding-bottom: 5rem;
+        max-width: 1200px; /* Wider on desktop */
         margin: auto;
     }
-
-    /* 4. Fonts */
-    html, body, [class*="css"] {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-    }
     
-    /* 5. Headings */
-    h1, h2, h3 {
-        color: #1D1D1F !important;
-        font-weight: 600;
-        letter-spacing: -0.5px;
+    /* Mobile Override: Keep it tight on phones */
+    @media (max-width: 768px) {
+        .block-container {
+            max-width: 100%;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
     }
 
-    /* 6. Result Card (White floating box) */
-    .result-card {
-        background-color: white !important;
+    /* --- 3. GLASSMORPHISM CARDS --- */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05); /* 5% White */
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
         padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        text-align: center;
-        margin-top: 2rem;
-        color: #1D1D1F !important;
-    }
-
-    /* 7. Buttons (Apple Blue Pills) */
-    div.stButton > button {
-        background-color: #0071E3 !important;
-        color: white !important;
-        border-radius: 980px;
-        border: none;
-        padding: 12px 24px;
-        font-size: 16px;
-        font-weight: 500;
-        width: 100%;
-        transition: transform 0.1s ease-in-out;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    div.stButton > button:hover {
-        background-color: #0077ED !important;
-        transform: scale(1.02);
-    }
-    div.stButton > button:active {
-        transform: scale(0.95);
-    }
-
-    /* 8. Tutorial Text */
-    .tutorial-text {
-        font-size: 14px;
-        color: #86868b !important;
-        margin-bottom: 5px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     
-    /* 9. Hide Default Streamlit Elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- 4. TEXT & HEADINGS --- */
+    h1, h2, h3 {
+        color: #FFFFFF !important;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    p, label {
+        color: #E0E0E0 !important;
+    }
+
+    /* --- 5. BUTTONS (Neon Blue Glow) --- */
+    div.stButton > button {
+        background: linear-gradient(90deg, #0061ff 0%, #60efff 100%);
+        color: #000000 !important; /* Black text for contrast */
+        border-radius: 12px;
+        border: none;
+        padding: 14px 28px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 97, 255, 0.3);
+    }
+    
+    div.stButton > button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 97, 255, 0.5);
+        color: #000000 !important;
+    }
+
+    /* --- 6. HIDE JUNK --- */
+    #MainMenu, header, footer {visibility: hidden;}
+    
+    /* Center images */
+    div[data-testid="stImage"] {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -122,85 +132,98 @@ CLASS_NAMES = [
 ]
 
 # ----------------------------------------------------------------------------------
-# 4. UI LOGIC
+# 4. DYNAMIC UI LAYOUT
 # ----------------------------------------------------------------------------------
 
+# Initialize State
 if 'camera_active' not in st.session_state:
     st.session_state['camera_active'] = False
 
-# HEADER
-st.title("Plant Health Check")
-st.markdown("### Professional Grade Disease Identification")
+# --- HEADER SECTION ---
+col_head_1, col_head_2 = st.columns([1, 4]) # Logo left, Title right
+with col_head_2:
+    st.title("Plant ID Pro")
+    st.markdown("#### AI-Powered Disease Diagnostics")
 
-# TUTORIAL
-with st.expander("ℹ️ How to use this app"):
-    st.markdown("""
-    <div style="padding: 10px;">
-        <p class="tutorial-text"><strong>Step 1:</strong> Select a clear photo of a <b>single plant leaf</b>.</p>
-        <p class="tutorial-text"><strong>Step 2:</strong> You can either <b>upload</b> from your gallery or use the <b>camera</b>.</p>
-        <p class="tutorial-text"><strong>Step 3:</strong> The AI will analyze the leaf pattern and provide a diagnosis instantly.</p>
-    </div>
-    """, unsafe_allow_html=True)
+# --- MAIN CONTROLS (Responsive Grid) ---
+st.markdown("<br>", unsafe_allow_html=True) # Spacer
 
-st.write(" ") # Spacer
+# Using 3 columns for desktop to center content, but full width on mobile
+# Logic: Empty | Content | Empty
+col_spacer_L, col_main, col_spacer_R = st.columns([1, 6, 1])
 
-# INPUT CONTROLS
-col1, col2 = st.columns(2)
-source_image = None
-
-with col1:
-    st.markdown("#### 📤 Upload")
-    uploaded_file = st.file_uploader("Select from library", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
-    if uploaded_file:
-        source_image = Image.open(uploaded_file)
-        st.session_state['camera_active'] = False 
-
-with col2:
-    st.markdown("#### 📸 Camera")
-    if st.button("Activate Camera"):
-        st.session_state['camera_active'] = not st.session_state['camera_active']
-
-if st.session_state['camera_active']:
-    st.write("Active Camera Feed:")
-    camera_pic = st.camera_input("Snap a photo", label_visibility="hidden")
-    if camera_pic:
-        source_image = Image.open(camera_pic)
-
-# ----------------------------------------------------------------------------------
-# 5. PREDICTION LOGIC
-# ----------------------------------------------------------------------------------
-
-if source_image:
-    st.write(" ")
-    st.image(source_image, caption="Analysis Target", width=400)
+with col_main:
+    # Wrap controls in a Glass Card
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     
-    with st.spinner("Analyzing leaf structure..."):
-        image = ImageOps.fit(source_image, (224, 224), Image.Resampling.LANCZOS)
-        img_array = np.array(image)
-        img_array = np.expand_dims(img_array, axis=0)
+    # 2-Column Inputs INSIDE the card
+    input_c1, input_c2 = st.columns(2)
+    
+    with input_c1:
+        st.markdown("##### 📁 Upload Image")
+        uploaded_file = st.file_uploader("Select", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
+        if uploaded_file:
+            st.session_state['source_image'] = Image.open(uploaded_file)
+            st.session_state['camera_active'] = False
 
-        predictions = model.predict(img_array)
-        predicted_index = np.argmax(predictions[0])
-        predicted_class = CLASS_NAMES[predicted_index]
-        confidence = np.max(predictions[0]) * 100
+    with input_c2:
+        st.markdown("##### 📸 Use Camera")
+        if st.button("Toggle Camera"):
+            st.session_state['camera_active'] = not st.session_state['camera_active']
+            
+    # Camera Area
+    if st.session_state['camera_active']:
+        st.markdown("---")
+        camera_pic = st.camera_input("Take a picture", label_visibility="collapsed")
+        if camera_pic:
+            st.session_state['source_image'] = Image.open(camera_pic)
+            
+    st.markdown('</div>', unsafe_allow_html=True) # End Glass Card
 
-    # Display Result
-    display_name = predicted_class.replace("___", " • ").replace("_", " ")
+# ----------------------------------------------------------------------------------
+# 5. PREDICTION & RESULTS DISPLAY
+# ----------------------------------------------------------------------------------
 
-    html_content = f"""
-    <div class="result-card">
-        <h3 style="color: #86868b !important; font-size: 14px; text-transform: uppercase;">Diagnosis</h3>
-        <h1 style="margin: 10px 0; font-size: 32px; color: #1D1D1F !important;">{display_name}</h1>
-        <p style="color: {'#1d1d1f' if confidence > 70 else '#ff3b30'} !important; font-weight: 500;">
-            Confidence: {confidence:.1f}%
-        </p>
-    </div>
-    """
-    st.markdown(html_content, unsafe_allow_html=True)
+if 'source_image' in st.session_state and st.session_state['source_image']:
+    img = st.session_state['source_image']
+    
+    # --- SPLIT LAYOUT FOR RESULTS (Desktop Friendly) ---
+    # Left: Image | Right: Diagnosis
+    res_c1, res_c2 = st.columns([1, 1]) 
+    
+    with res_c1:
+        st.markdown('<div class="glass-card" style="text-align: center;">', unsafe_allow_html=True)
+        st.image(img, caption="Analyzed Leaf", use_column_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with res_c2:
+        with st.spinner("Running AI Diagnosis..."):
+            # Predict
+            processed_img = ImageOps.fit(img, (224, 224), Image.Resampling.LANCZOS)
+            img_array = np.array(processed_img)
+            img_array = np.expand_dims(img_array, axis=0)
+            
+            preds = model.predict(img_array)
+            idx = np.argmax(preds[0])
+            label = CLASS_NAMES[idx]
+            conf = np.max(preds[0]) * 100
 
-    if "healthy" in predicted_class.lower():
-        st.success("Analysis Complete: No threats detected.")
-    elif predicted_class == 'Background_without_leaves':
-        st.warning("Analysis Inconclusive: No leaf structure found.")
-    else:
-        st.info("Analysis Complete: Disease markers identified. Treatment recommended.")
+        # Dynamic Color Logic
+        status_color = "#00ff88" if "healthy" in label.lower() else "#ff4b4b"
+        display_name = label.replace("___", " • ").replace("_", " ")
+
+        # Result Card HTML
+        st.markdown(f"""
+        <div class="glass-card" style="border-left: 5px solid {status_color};">
+            <h4 style="color: #b0b0b0; margin:0;">DIAGNOSIS REPORT</h4>
+            <h1 style="font-size: 42px; margin: 10px 0; background: -webkit-linear-gradient(45deg, #fff, {status_color}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                {display_name}
+            </h1>
+            <p style="font-size: 20px;">Confidence: <b>{conf:.1f}%</b></p>
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            <p>
+                {"✅ This plant looks vibrant and healthy. No treatment required." if "healthy" in label.lower() 
+                else "⚠️ Disease markers detected. Isolate plant and consult treatment database."}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
