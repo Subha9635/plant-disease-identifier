@@ -1,14 +1,13 @@
 import streamlit as st
 import tensorflow as tf
+from PIL import Image, ImageOps
 import numpy as np
-from PIL import Image
 
 # --- SET UP ---
-# Hide warnings to keep the app clean
+# This hides the heavy TensorFlow warnings
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# --- CONSTANTS ---
 MODEL_PATH = 'plant_disease_model.h5'
 CLASS_NAMES = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy', 
@@ -27,39 +26,38 @@ CLASS_NAMES = [
     'Tomato___Tomato_mosaic_virus', 'Tomato___healthy'
 ]
 
-# --- LOAD MODEL ---
 @st.cache_resource
 def load_model():
     return tf.keras.models.load_model(MODEL_PATH)
 
-# --- UI ---
 st.title("🌿 Plant Disease Identifier")
-st.markdown("Upload a plant leaf image to detect diseases.")
+st.write("Upload a leaf image to detect disease.")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_column_width=True)
-
+    st.image(image, caption='Uploaded Leaf', use_column_width=True)
+    
     if st.button('Analyze'):
-        with st.spinner('Processing...'):
+        with st.spinner('Scanning...'):
             try:
                 model = load_model()
-
-                # Preprocess
-                img = image.resize((224, 224))
-                img_array = tf.keras.utils.img_to_array(img)
+                
+                # Simple Preprocessing
+                size = (224, 224)
+                image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+                img_array = np.array(image)
                 img_array = np.expand_dims(img_array, axis=0)
 
-                # Predict
-                predictions = model.predict(img_array)
-                predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
-                confidence = 100 * np.max(predictions[0])
-
-                # Output
-                st.success(f"Prediction: {predicted_class}")
+                # Prediction
+                prediction = model.predict(img_array)
+                predicted_class = CLASS_NAMES[np.argmax(prediction[0])]
+                confidence = 100 * np.max(prediction[0])
+                
+                # Result
+                st.success(f"Result: {predicted_class}")
                 st.info(f"Confidence: {confidence:.2f}%")
-
+                
             except Exception as e:
                 st.error(f"Error: {e}")
