@@ -7,100 +7,123 @@ from PIL import Image, ImageOps
 # 1. CONFIGURATION
 # ----------------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Plant ID Pro",
+    page_title="Plant Disease Identification",
     page_icon="🌿",
-    layout="wide", # 🟢 CRITICAL: Switches to wide mode for Laptop use
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ----------------------------------------------------------------------------------
-# 2. DYNAMIC "GLASS DARK" CSS
+# 2. ULTRA-GLASS ANIMATED CSS
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* --- 1. ANIMATED BACKGROUND --- */
+    /* --- 1. ANIMATED LIVING BACKGROUND --- */
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
     [data-testid="stAppViewContainer"] {
-        background: radial-gradient(circle at 50% -20%, #2b2b2b, #000000);
-        background-attachment: fixed;
+        /* Deep space/ocean gradient */
+        background: linear-gradient(-45deg, #020024, #090979, #00d4ff, #090979);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
         color: #FFFFFF;
     }
     
-    /* --- 2. RESPONSIVE CONTAINER (The "Dynamic Spacing") --- */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 5rem;
-        max-width: 1200px; /* Wider on desktop */
-        margin: auto;
+    /* Overlay to darken the background slightly so text pops */
+    [data-testid="stAppViewContainer"]::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: -1;
     }
     
-    /* Mobile Override: Keep it tight on phones */
-    @media (max-width: 768px) {
-        .block-container {
-            max-width: 100%;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
+    /* --- 2. RESPONSIVE CONTAINER --- */
+    .block-container {
+        padding-top: 3rem;
+        padding-bottom: 5rem;
+        max-width: 1100px;
+        margin: auto;
     }
 
-    /* --- 3. GLASSMORPHISM CARDS --- */
+    /* --- 3. ENHANCED GLASSMORPHISM CARDS --- */
     .glass-card {
-        background: rgba(255, 255, 255, 0.05); /* 5% White */
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        /* More translucent background */
+        background: rgba(255, 255, 255, 0.03);
+        /* Stronger blur for icy effect */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        /* Brighter, crisper border */
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 24px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
     }
     
     .glass-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(96, 239, 255, 0.1); /* Subtle blue glow on hover */
     }
 
-    /* --- 4. TEXT & HEADINGS --- */
-    h1, h2, h3 {
+    /* Special styling for the large camera section */
+    .camera-focus-mode {
+        text-align: center;
+        border: 2px solid rgba(96, 239, 255, 0.3); /* Highlighted border */
+    }
+
+    /* --- 4. TYPOGRAPHY & ACCENTS --- */
+    h1, h2, h3, h4, h5 {
         color: #FFFFFF !important;
         font-weight: 700;
         letter-spacing: -0.5px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
-    p, label {
-        color: #E0E0E0 !important;
+    
+    /* Main Title Gradient effect */
+    .main-title {
+        background: -webkit-linear-gradient(0deg, #ffffff, #60efff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 3rem;
     }
 
-    /* --- 5. BUTTONS (Neon Blue Glow) --- */
+    p, label, li {
+        color: #E0E0E0 !important;
+        font-size: 1.1rem;
+    }
+
+    /* --- 5. NEON BUTTONS --- */
     div.stButton > button {
-        background: linear-gradient(90deg, #0061ff 0%, #60efff 100%);
-        color: #000000 !important; /* Black text for contrast */
+        background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+        color: #FFFFFF !important;
         border-radius: 12px;
         border: none;
-        padding: 14px 28px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        padding: 16px 28px;
+        font-weight: 600;
+        letter-spacing: 1px;
         text-transform: uppercase;
         width: 100%;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 97, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
     }
     
     div.stButton > button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 6px 20px rgba(0, 97, 255, 0.5);
-        color: #000000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.5);
     }
 
     /* --- 6. HIDE JUNK --- */
     #MainMenu, header, footer {visibility: hidden;}
     
-    /* Center images */
-    div[data-testid="stImage"] {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+    /* Center images within cards */
+    div[data-testid="stImage"] > img {
+        border-radius: 16px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -110,6 +133,7 @@ st.markdown("""
 # ----------------------------------------------------------------------------------
 @st.cache_resource
 def load_model():
+    # Ensure this file is in your folder
     return tf.keras.models.load_model('plant_disease_model.h5')
 
 model = load_model()
@@ -132,72 +156,85 @@ CLASS_NAMES = [
 ]
 
 # ----------------------------------------------------------------------------------
-# 4. DYNAMIC UI LAYOUT
+# 4. UI LAYOUT
 # ----------------------------------------------------------------------------------
 
 # Initialize State
 if 'camera_active' not in st.session_state:
     st.session_state['camera_active'] = False
+if 'source_image' not in st.session_state:
+    st.session_state['source_image'] = None
 
-# --- HEADER SECTION ---
-col_head_1, col_head_2 = st.columns([1, 4]) # Logo left, Title right
-with col_head_2:
-    st.title("Plant ID Pro")
-    st.markdown("#### AI-Powered Disease Diagnostics")
+# --- HEADER ---
+col_spacer_L, col_content, col_spacer_R = st.columns([1, 8, 1])
+with col_content:
+    st.markdown('<h1 class="main-title">Plant Disease Identification Through Scanning</h1>', unsafe_allow_html=True)
+    st.markdown("### AI-Powered Diagnostics Panel")
 
-# --- MAIN CONTROLS (Responsive Grid) ---
-st.markdown("<br>", unsafe_allow_html=True) # Spacer
+st.markdown("<br>", unsafe_allow_html=True)
 
-# Using 3 columns for desktop to center content, but full width on mobile
-# Logic: Empty | Content | Empty
-col_spacer_L, col_main, col_spacer_R = st.columns([1, 6, 1])
+# --- MAIN INPUT AREA ---
+# Using 3 columns to center content on wide screens
+c_L, c_Main, c_R = st.columns([1, 6, 1])
 
-with col_main:
-    # Wrap controls in a Glass Card
+with c_Main:
+    # 1. Top Controls (Side by Side)
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    
-    # 2-Column Inputs INSIDE the card
     input_c1, input_c2 = st.columns(2)
     
     with input_c1:
-        st.markdown("##### 📁 Upload Image")
-        uploaded_file = st.file_uploader("Select", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
+        st.markdown("##### 📁 Option 1: Upload File")
+        uploaded_file = st.file_uploader("Select image", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
         if uploaded_file:
             st.session_state['source_image'] = Image.open(uploaded_file)
-            st.session_state['camera_active'] = False
+            st.session_state['camera_active'] = False # Reset camera if upload is used
 
     with input_c2:
-        st.markdown("##### 📸 Use Camera")
-        if st.button("Toggle Camera"):
+        st.markdown("##### 📸 Option 2: Live Scan")
+        # The toggle button lets the user choose to open the big camera view
+        if st.button("Open Camera Scanner"):
             st.session_state['camera_active'] = not st.session_state['camera_active']
+            # Clear previous image when opening camera to avoid confusion
+            if st.session_state['camera_active']:
+                 st.session_state['source_image'] = None
             
-    # Camera Area
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # 2. THE NEW LARGE CAMERA SECTION (Appears below buttons when active)
     if st.session_state['camera_active']:
-        st.markdown("---")
-        camera_pic = st.camera_input("Take a picture", label_visibility="collapsed")
+        # We use a separate, highlighted glass card for the camera "mode"
+        st.markdown('<div class="glass-card camera-focus-mode">', unsafe_allow_html=True)
+        st.markdown("#### 🟢 Scanner Active: Center Leaf in Frame")
+        # This will be much larger now because it's in a main column, not a side column
+        camera_pic = st.camera_input("Take photo", label_visibility="collapsed")
         if camera_pic:
             st.session_state['source_image'] = Image.open(camera_pic)
-            
-    st.markdown('</div>', unsafe_allow_html=True) # End Glass Card
+            # Optional: Close camera automatically after taking pic
+            # st.session_state['camera_active'] = False 
+            # st.experimental_rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ----------------------------------------------------------------------------------
-# 5. PREDICTION & RESULTS DISPLAY
+# 5. PREDICTION & RESULTS (Split View)
 # ----------------------------------------------------------------------------------
 
-if 'source_image' in st.session_state and st.session_state['source_image']:
+if st.session_state['source_image']:
     img = st.session_state['source_image']
     
-    # --- SPLIT LAYOUT FOR RESULTS (Desktop Friendly) ---
-    # Left: Image | Right: Diagnosis
-    res_c1, res_c2 = st.columns([1, 1]) 
+    st.markdown("<br>", unsafe_allow_html=True) # Spacer
+
+    # Split layout: Left for Image, Right for Data
+    res_c1, res_c2 = st.columns([2, 3]) 
     
     with res_c1:
-        st.markdown('<div class="glass-card" style="text-align: center;">', unsafe_allow_html=True)
-        st.image(img, caption="Analyzed Leaf", use_column_width=True)
+        st.markdown('<div class="glass-card" style="text-align: center; padding: 1rem;">', unsafe_allow_html=True)
+        st.markdown("##### Analyzed Sample")
+        st.image(img, use_column_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
     with res_c2:
-        with st.spinner("Running AI Diagnosis..."):
+        with st.spinner("Processing neural network..."):
             # Predict
             processed_img = ImageOps.fit(img, (224, 224), Image.Resampling.LANCZOS)
             img_array = np.array(processed_img)
@@ -208,22 +245,28 @@ if 'source_image' in st.session_state and st.session_state['source_image']:
             label = CLASS_NAMES[idx]
             conf = np.max(preds[0]) * 100
 
-        # Dynamic Color Logic
-        status_color = "#00ff88" if "healthy" in label.lower() else "#ff4b4b"
-        display_name = label.replace("___", " • ").replace("_", " ")
+        # Color Logic
+        is_healthy = "healthy" in label.lower()
+        status_color = "#00ff88" if is_healthy else "#ff3333"
+        
+        # Clean Name
+        display_name = label.replace("___", " • ").replace("_", " ").title()
 
         # Result Card HTML
         st.markdown(f"""
-        <div class="glass-card" style="border-left: 5px solid {status_color};">
-            <h4 style="color: #b0b0b0; margin:0;">DIAGNOSIS REPORT</h4>
-            <h1 style="font-size: 42px; margin: 10px 0; background: -webkit-linear-gradient(45deg, #fff, {status_color}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <div class="glass-card" style="border-left: 8px solid {status_color};">
+            <h3 style="color: #b0b0b0; margin-bottom:0;">DIAGNOSIS RESULT</h3>
+            <h1 style="font-size: 48px; margin: 10px 0; background: -webkit-linear-gradient(0deg, #fff, {status_color}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                 {display_name}
             </h1>
-            <p style="font-size: 20px;">Confidence: <b>{conf:.1f}%</b></p>
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <span style="font-size: 24px; margin-right: 10px;">AI Confidence:</span>
+                <span style="font-size: 24px; font-weight: bold; color: {status_color};">{conf:.1f}%</span>
+            </div>
             <hr style="border-color: rgba(255,255,255,0.1);">
-            <p>
-                {"✅ This plant looks vibrant and healthy. No treatment required." if "healthy" in label.lower() 
-                else "⚠️ Disease markers detected. Isolate plant and consult treatment database."}
-            </p>
+            <div style="font-size: 18px; line-height: 1.6;">
+                {"✅ <b>Status: Healthy.</b> Plant shows vigorous condition with no pathogenic signs." if is_healthy
+                else "⚠️ <b>Status: Infected.</b> Pathogen markers identified. Isolate this plant immediately to prevent spread."}
+            </div>
         </div>
         """, unsafe_allow_html=True)
