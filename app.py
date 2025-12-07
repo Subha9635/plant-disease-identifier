@@ -14,104 +14,123 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------------------
-# 2. ADVANCED CSS (Animated Dark Glass)
+# 2. ADVANCED CSS (Dark, Blurry, Neutral Theme)
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* --- 1. ANIMATED DARK GRADIENT BACKGROUND --- */
+    /* --- 1. ANIMATED DARK BLURRY BACKGROUND (No Blue/Purple) --- */
+    [data-testid="stAppViewContainer"] {
+        /* Deep charcoal, slate grey, and black gradient */
+        background: linear-gradient(-45deg, #1a1a1a, #2d2d2d, #000000, #363636);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
+        color: #e0e0e0;
+    }
+    
+    /* Add a blur effect on top of the background */
+    [data-testid="stAppViewContainer"]::before {
+        content: "";
+        position: fixed;
+        top: 0; 
+        left: 0;
+        width: 100%; 
+        height: 100%;
+        backdrop-filter: blur(15px); /* Adjustable blur amount */
+        z-index: -1;
+    }
+    
     @keyframes gradientBG {
         0% {background-position: 0% 50%;}
         50% {background-position: 100% 50%;}
         100% {background-position: 0% 50%;}
     }
-
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #141E30);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        color: #FFFFFF;
-    }
     
-    /* --- 2. GLASSMORPHISM CARDS --- */
+    /* --- 2. GLASSMORPHISM CARDS (Neutral Dark Tint) --- */
     .glass-card {
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: rgba(40, 40, 40, 0.5); /* Darker, neutral tint */
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        padding: 1.5rem; /* Reduced padding for tighter look */
-        margin-bottom: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
         transition: all 0.3s ease;
     }
     
     .glass-card:hover {
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.8);
     }
 
-    /* --- 3. CAMERA ZONE --- */
+    /* --- 3. CAMERA ZONE (Neutral/Green for Action) --- */
     .camera-zone {
-        background: rgba(0, 255, 136, 0.05) !important;
-        border: 1px solid rgba(0, 255, 136, 0.3) !important;
+        background: rgba(0, 100, 50, 0.1) !important;
+        border: 1px solid rgba(0, 200, 100, 0.2) !important;
         position: relative;
         overflow: hidden;
     }
     .scan-header {
-        color: #00ff88 !important;
+        color: #00c864 !important;
         text-transform: uppercase;
         letter-spacing: 2px;
         font-size: 12px;
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         display: block;
         text-align: center;
-        text-shadow: 0 0 10px rgba(0,255,136,0.5);
+        text-shadow: 0 0 8px rgba(0,200,100,0.4);
     }
 
-    /* --- 4. TYPOGRAPHY --- */
+    /* --- 4. TYPOGRAPHY (White/Light Grey) --- */
     h1, h2, h3 {
-        color: #FFFFFF !important;
+        color: #ffffff !important;
         font-weight: 800;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+        text-shadow: 0 2px 5px rgba(0,0,0,0.5); 
     }
-    p, label, li, .stMarkdown {
-        color: #E0E0E0 !important;
+    p, label, li, .stMarkdown, .stExpander p {
+        color: #cccccc !important;
     }
 
-    /* --- 5. NEON BUTTONS --- */
+    /* --- 5. BUTTONS (Neutral Dark Gradient) --- */
     div.stButton > button {
-        background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
-        color: #000000 !important;
+        background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+        color: #ffffff !important;
         border-radius: 12px;
         border: none;
-        padding: 12px 20px;
-        font-weight: 800;
+        padding: 14px 24px;
+        font-weight: 700;
         letter-spacing: 1px;
         text-transform: uppercase;
         width: 100%;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 97, 255, 0.4);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     
     div.stButton > button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 8px 25px rgba(96, 239, 255, 0.6);
-        background: linear-gradient(135deg, #60efff 0%, #0061ff 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
     }
 
-    /* --- 6. CLEANUP --- */
+    /* --- 6. CLEANUP & LAYOUT --- */
     #MainMenu, header, footer {visibility: hidden;}
     .block-container { 
         max-width: 1000px; 
-        padding-top: 2rem; 
-        padding-bottom: 2rem; 
+        padding-top: 3rem; 
+        padding-bottom: 3rem; 
     }
     div[data-testid="stImage"] { display: block; margin: auto; border-radius: 16px; overflow: hidden; }
     
-    /* Remove extra gaps inside expanders */
+    /* Make expander headers stand out */
     div[data-testid="stExpander"] div[role="button"] p {
         font-size: 1.1rem;
         font-weight: 600;
+        color: #ffffff !important;
+    }
+    /* Clean up file uploader padding */
+    [data-testid="stFileUploader"] {
+        padding-top: 1rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -151,27 +170,26 @@ if 'source_image' not in st.session_state:
     st.session_state['source_image'] = None
 
 # HEADER
-st.markdown("<h1 style='text-align: center; font-size: 42px; margin-bottom: 5px;'>Plant Disease Identification Through Scanning</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; opacity: 0.8; margin-top: 0;'>AI-Powered Agricultural Diagnostics</h4>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 48px; margin-bottom: 10px;'>Plant Disease Identification Through Scanning</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; opacity: 0.9; margin-top: 0; margin-bottom: 2rem;'>AI-Powered Agricultural Diagnostics</h4>", unsafe_allow_html=True)
 
-# --- TUTORIAL SECTION (Restored) ---
-# We use a container to keep width consistent
-col_tut_L, col_tut, col_tut_R = st.columns([1, 6, 1])
-with col_tut:
-    with st.expander("ℹ️ How to Use This Scanner"):
+# --- MAIN CONTROL PANEL ---
+# Tight layout: Spacer | Main Content | Spacer
+col_L, col_main, col_R = st.columns([1, 8, 1])
+
+with col_main:
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    
+    # --- TUTORIAL EXPANDER (Inside the card for a cleaner look) ---
+    with st.expander("ℹ️ How to Use This Scanner", expanded=False):
         st.markdown("""
         1. **Select Input:** Choose to **Upload** a file or open the **Camera**.
         2. **Capture Leaf:** Ensure the leaf is well-lit and centered.
         3. **Analyze:** The AI will instantly process the image and provide a diagnosis.
         """)
-
-# --- MAIN CONTROL PANEL ---
-# Tight layout: Spacer | Main Content | Spacer
-col_L, col_main, col_R = st.columns([1, 6, 1])
-
-with col_main:
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     
+    st.write("") # Small spacer between tutorial and controls
+
     # Input Toggle Buttons (Side by Side)
     tog_c1, tog_c2 = st.columns(2)
     with tog_c1:
@@ -187,21 +205,20 @@ with col_main:
     # --- INPUT AREA ---
     # Logic: Show Camera OR Upload, not both to save space
     if st.session_state['camera_active']:
-        st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
+        st.write("")
         # Active Camera Zone
-        st.markdown('<div class="glass-card camera-zone">', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card camera-zone" style="margin-bottom: 0;">', unsafe_allow_html=True)
         st.markdown('<span class="scan-header">● SYSTEM ACTIVE ●</span>', unsafe_allow_html=True)
         
         camera_pic = st.camera_input("Center leaf...", label_visibility="hidden")
         if camera_pic:
             st.session_state['source_image'] = Image.open(camera_pic)
             st.session_state['camera_active'] = False # Auto-close
-            st.experimental_rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
     else:
         # Standard Upload
-        st.markdown('<div style="margin-top: 10px;"></div>', unsafe_allow_html=True)
         uploaded_file = st.file_uploader("Choose Image", type=["jpg", "png", "jpeg"], label_visibility="hidden")
         if uploaded_file:
             st.session_state['source_image'] = Image.open(uploaded_file)
@@ -226,10 +243,11 @@ if st.session_state['source_image']:
         conf = np.max(preds[0]) * 100
 
     # Layout: Image Left | Report Right (On Desktop)
-    col_res_L, col_res_R = st.columns([1, 1.5])
+    st.write("") # Spacer before results
+    col_res_L, col_res_R = st.columns([2, 3], gap="medium")
     
     with col_res_L:
-        st.markdown('<div class="glass-card" style="display: flex; justify-content: center; align-items: center;">', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card" style="display: flex; justify-content: center; align-items: center; height: 100%;">', unsafe_allow_html=True)
         st.image(img, caption="Scan Target", use_column_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
@@ -239,29 +257,29 @@ if st.session_state['source_image']:
         is_bg = label == 'Background_without_leaves'
         
         if is_healthy:
-            theme_color = "#00ff88"
+            theme_color = "#00c864" # Neutral Green
             status_icon = "✅"
             status_msg = "Plant vital signs are stable."
         elif is_bg:
-            theme_color = "#ffcc00"
+            theme_color = "#c8a000" # Neutral Yellow/Gold
             status_icon = "⚠️"
             status_msg = "Scan inconclusive. No clear leaf found."
         else:
-            theme_color = "#ff0055"
+            theme_color = "#c80040" # Neutral Red
             status_icon = "🚨"
             status_msg = "Pathogen markers detected."
 
         display_name = label.replace("___", " • ").replace("_", " ")
 
         st.markdown(f"""
-        <div class="glass-card" style="border-left: 4px solid {theme_color};">
+        <div class="glass-card" style="border-left: 4px solid {theme_color}; height: 100%;">
             <h5 style="color: {theme_color} !important; margin:0; letter-spacing: 2px;">DIAGNOSIS</h5>
-            <h2 style="font-size: 32px; margin: 10px 0; text-transform: capitalize;">{display_name}</h2>
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <span style="font-size: 20px; margin-right: 10px;">{status_icon}</span>
-                <p style="font-size: 16px; margin: 0;">Confidence: <b>{conf:.1f}%</b></p>
+            <h2 style="font-size: 36px; margin: 15px 0; text-transform: capitalize;">{display_name}</h2>
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <span style="font-size: 24px; margin-right: 10px;">{status_icon}</span>
+                <p style="font-size: 18px; margin: 0; color: #ffffff !important;">Confidence: <b>{conf:.1f}%</b></p>
             </div>
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
-            <p style="font-size: 15px; color: #ccc;">{status_msg}</p>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+            <p style="font-size: 16px; line-height: 1.6; color: #cccccc;">{status_msg}</p>
         </div>
         """, unsafe_allow_html=True)
