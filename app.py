@@ -1,59 +1,59 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 # ----------------------------------------------------------------------------------
-# MODEL LOADING AND SETUP (Same as before)
+# MODEL LOADING AND SETUP
 # ----------------------------------------------------------------------------------
 
-# 1. Load Model (Cached to prevent reloading on every interaction)
+# 1. Load Model (Cached to prevent reloading)
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model('plant_village_model.h5')
+    # Make sure this file matches the one you downloaded from Colab
+    return tf.keras.models.load_model('plant_disease_model.h5')
 
 model = load_model()
 
-# 2. Define Classes (Using your provided list)
+# 2. Define Classes (Updated to match YOUR specific Colab training data)
 CLASS_NAMES = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy', 
-    'Blueberry___healthy', 'Cherry_(including_sour)___Powdery_mildew', 'Cherry_(including_sour)___healthy', 
-    'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot', 'Corn_(maize)___Common_rust_', 
-    'Corn_(maize)___Northern_Leaf_Blight', 'Corn_(maize)___healthy', 'Grape___Black_rot', 
-    'Grape___Esca_(Black_Measles)', 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)', 'Grape___healthy', 
-    'Orange___Haunglongbing_(Citrus_greening)', 'Peach___Bacterial_spot', 'Peach___healthy', 
-    'Pepper,_bell___Bacterial_spot', 'Pepper,_bell___healthy', 'Potato___Early_blight', 
-    'Potato___Late_blight', 'Potato___healthy', 'Raspberry___healthy', 'Soybean___healthy', 
-    'Squash___Powdery_mildew', 'Strawberry___Leaf_scorch', 'Strawberry___healthy', 
-    'Tomato___Bacterial_spot', 'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_Mold', 
+    'Background_without_leaves', 'Blueberry___healthy', 'Cherry___Powdery_mildew', 
+    'Cherry___healthy', 'Corn___Cercospora_leaf_spot Gray_leaf_spot', 'Corn___Common_rust', 
+    'Corn___Northern_Leaf_Blight', 'Corn___healthy', 'Grape___Black_rot', 
+    'Grape___Esca_(Black_Measles)', 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)', 
+    'Grape___healthy', 'Orange___Haunglongbing_(Citrus_greening)', 'Peach___Bacterial_spot', 
+    'Peach___healthy', 'Pepper,_bell___Bacterial_spot', 'Pepper,_bell___healthy', 
+    'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy', 
+    'Raspberry___healthy', 'Soybean___healthy', 'Squash___Powdery_mildew', 
+    'Strawberry___Leaf_scorch', 'Strawberry___healthy', 'Tomato___Bacterial_spot', 
+    'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_Mold', 
     'Tomato___Septoria_leaf_spot', 'Tomato___Spider_mites Two-spotted_spider_mite', 
-    'Tomato___Target_Spot', 'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 
-    'Tomato___healthy'
+    'Tomato___Target_Spot', 'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 
+    'Tomato___Tomato_mosaic_virus', 'Tomato___healthy'
 ]
 
-# Set a threshold to filter out uncertain images (like human hands/non-plant objects)
-CONFIDENCE_THRESHOLD = 0.75 # 75% confidence needed to make a positive ID
+CONFIDENCE_THRESHOLD = 60.0 # Adjusted for the new model
 
 # ----------------------------------------------------------------------------------
-# UI AND INPUT LOGIC (FIXED)
+# UI AND INPUT LOGIC
 # ----------------------------------------------------------------------------------
 
 st.set_page_config(page_title="Plant Disease Scanner", layout="wide")
-st.title("🌿 PlantVillage AI Disease Scanner")
-st.markdown("Scan a leaf using your camera or upload an image from your gallery.")
+st.title("🌿 Plant Disease Identifier")
+st.markdown("Scan a leaf using your camera or upload an image.")
 
 st.markdown("---")
 
-# Use columns to present both input options clearly
 col1, col2 = st.columns(2)
 
 with col1:
-    uploaded_file = st.file_uploader("📁 1. Upload Image from Gallery", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("📁 1. Upload Image", type=["jpg", "jpeg", "png"])
 
 with col2:
-    camera_input = st.camera_input("📸 2. Scan Leaf with Camera")
+    camera_input = st.camera_input("📸 2. Scan Leaf")
 
-# Determine which input source to use
+# Determine input source
 if uploaded_file is not None:
     source_file = uploaded_file
 elif camera_input is not None:
@@ -65,15 +65,19 @@ if source_file is not None:
     
     # --- Image Processing ---
     image = Image.open(source_file)
-    st.image(image, caption="Captured/Uploaded Image", width=300)
+    st.image(image, caption="Input Image", width=300)
     
-    # Resize and Normalize (Must match training size: 224x224)
-    img_array = np.array(image.resize((224, 224)))
-    img_array = img_array / 255.0 
+    # Resize to 224x224
+    # Using ImageOps.fit ensures we don't distort the aspect ratio
+    image = ImageOps.fit(image, (224, 224), Image.Resampling.LANCZOS)
+    img_array = np.array(image)
+    
+    # ⚠️ CRITICAL CHANGE FOR YOUR MODEL:
+    # We do NOT divide by 255.0 here because your model has a Rescaling layer inside it.
     img_array = np.expand_dims(img_array, axis=0) 
 
     # --- Prediction ---
-    with st.spinner('Analyzing image...'):
+    with st.spinner('Analyzing...'):
         predictions = model.predict(img_array)
         predicted_index = np.argmax(predictions[0])
         predicted_class = CLASS_NAMES[predicted_index]
@@ -81,20 +85,21 @@ if source_file is not None:
 
     st.markdown("---")
     
-    # --- Misclassification Fix: Apply Confidence Threshold ---
+    # --- Results ---
     if confidence < CONFIDENCE_THRESHOLD:
-        st.error("❌ Non-Plant Object Detected or Highly Uncertain Result")
-        st.warning(f"The model is only {confidence:.2f}% sure. Please ensure the image is a clear, single plant leaf and try again.")
-    else:
-        # Display positive result
-        clean_name = predicted_class.replace("___", ": ").replace("_", " ")
+        st.warning(f"⚠️ Low Confidence ({confidence:.2f}%). Are you sure this is a plant leaf?")
+    
+    elif predicted_class == 'Background_without_leaves':
+        st.error("❌ No leaf detected. Please verify the image.")
         
-        st.subheader(f"Diagnosis: **{clean_name}**")
+    else:
+        clean_name = predicted_class.replace("___", " - ").replace("_", " ")
+        st.subheader(f"Result: **{clean_name}**")
         st.caption(f"Confidence: **{confidence:.2f}%**")
         
         if "healthy" in predicted_class.lower():
             st.balloons()
-            st.success("✅ The plant appears healthy! Keep monitoring it.")
+            st.success("✅ Plant appears healthy.")
         else:
-            st.error("🚨 DISEASE DETECTED!")
-            st.info("Immediate action is recommended. Please isolate the plant and seek specific treatment based on the diagnosis.")
+            st.error("🚨 Disease Detected.")
+            st.info("Check recommended treatments for this condition.")
