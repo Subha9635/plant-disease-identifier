@@ -39,32 +39,6 @@ st.markdown("""
         50% {background-position: 100% 50%;}
         100% {background-position: 0% 50%;}
     }
-    
-    /* --- 2. GLASSMORPHISM CARDS --- */
-    .glass-card {
-        background: rgba(40, 40, 40, 0.5);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .glass-card:hover {
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.8);
-    }
-
-    /* --- 3. CAMERA ZONE --- */
-    .camera-zone {
-        background: rgba(0, 100, 50, 0.1) !important;
-        border: 1px solid rgba(0, 200, 100, 0.2) !important;
-        position: relative;
-        overflow: hidden;
-        margin-top: 1rem;
     }
     .scan-header {
         color: #00c864 !important;
