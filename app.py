@@ -118,7 +118,7 @@ if 'camera_active' not in st.session_state: st.session_state['camera_active'] = 
 if 'source_image' not in st.session_state: st.session_state['source_image'] = None
 
 # HEADER
-st.markdown("<h1 style='text-align: center; font-size: 48px; margin-bottom: 10px;'>Plant Disease Identification Through Scanning</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 48px; margin-bottom: 10px;'>Plant Disease Identification Through Scanning☘️</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; opacity: 0.9; margin-top: 0; margin-bottom: 2rem;'>Agricultural Diagnostics Tool</h4>", unsafe_allow_html=True)
 # --- MAIN CONTROL PANEL ---
 col_L, col_main, col_R = st.columns([1, 8, 1])
@@ -139,9 +139,9 @@ with col_main:
 
     # Input Toggle Buttons
     tog_c1, tog_c2 = st.columns(2)
-    with tog_c1:
-        if st.button("📁 Upload File", help="Select an image from your device"):
-            st.session_state['camera_active'] = False
+    # with tog_c1:
+        # if st.button("📁 Upload File", help="Select an image from your device"):
+            # st.session_state['camera_active'] = False
     with tog_c2:
         cam_label = "📸 Close Camera" if st.session_state['camera_active'] else "📸 Open Scanner"
         if st.button(cam_label, help="Activate your device camera"):
