@@ -137,7 +137,7 @@ if 'source_image' not in st.session_state:
 
 # HEADER
 st.markdown("<h1 style='text-align: center; font-size: 42px;'>Plant Disease Identification Through Scanning</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; opacity: 0.8; margin-top: -10px;'>Agricultural Diagnostics Tool</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; opacity: 0.8; margin-top: -10px;'>Agricultural Diagnostics Tool☘️</p>", unsafe_allow_html=True)
 
 # HOW TO USE (Clean Expander)
 with st.expander("ℹ️ How to Use This Scanner"):
@@ -148,7 +148,7 @@ with st.expander("ℹ️ How to Use This Scanner"):
     """)
 
 # MAIN CONTROLS (Single Glass Card Container)
-st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+#st.markdown('<div class="glass-card">', unsafe_allow_html=True)
 
 # Two columns for buttons (Side by Side)
 col_btn1, col_btn2 = st.columns(2)
