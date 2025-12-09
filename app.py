@@ -119,8 +119,7 @@ if 'source_image' not in st.session_state: st.session_state['source_image'] = No
 
 # HEADER
 st.markdown("<h1 style='text-align: center; font-size: 48px; margin-bottom: 10px;'>Plant Disease Identification Through Scanning</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; opacity: 0.9; margin-top: 0; margin-bottom: 2rem;'>Agricultural Diagnostics Tool</h4>", unsafe_allow_html=True)
-
+st.markdown("<h4 style='text-align: center; opacity: 0.9; margin-top: 0; margin-bottom: 2rem;'>AI-Powered Agricultural Diagnostics</h4>", unsafe_allow_html=True)
 # --- MAIN CONTROL PANEL ---
 col_L, col_main, col_R = st.columns([1, 8, 1])
 
