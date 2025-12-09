@@ -18,20 +18,13 @@ st.set_page_config(
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* --- 1. ANIMATED DARK BLURRY BACKGROUND --- */
+    /* --- 1. ONE UI INSPIRED BACKGROUND (Deep OLED Dark) --- */
     [data-testid="stAppViewContainer"] {
-        background: linear-gradient(-45deg, #1a1a1a, #2d2d2d, #000000, #363636);
-        background-size: 400% 400%;
+        /* Smoother, deeper gradient for that premium OLED look */
+        background: linear-gradient(160deg, #000000, #0a0a0a, #151515);
+        background-size: 200% 200%;
         animation: gradientBG 20s ease infinite;
-        color: #e0e0e0;
-    }
-    
-    [data-testid="stAppViewContainer"]::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        backdrop-filter: blur(15px);
-        z-index: -1;
+        color: #f5f5f5;
     }
     
     @keyframes gradientBG {
@@ -39,49 +32,124 @@ st.markdown("""
         50% {background-position: 100% 50%;}
         100% {background-position: 0% 50%;}
     }
+
+    /* --- 2. ONE UI CARDS (The "Bubble" Look) --- */
+    .glass-card {
+        background-color: #252525; /* Solid, accessible dark grey surface */
+        border-radius: 28px; /* Signature large rounded corners */
+        padding: 24px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle border */
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    
+    /* Hover effect for interactivity */
+    .glass-card:hover {
+        background-color: #2a2a2a;
+        transform: scale(1.005);
+        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* --- 3. CAMERA ZONE (Viewfinder Style) --- */
+    .camera-zone {
+        background-color: #1a1a1a !important;
+        border: 2px dashed #00c864 !important;
+        border-radius: 24px;
+        position: relative;
     }
     .scan-header {
         color: #00c864 !important;
+        font-family: sans-serif;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
-        margin-bottom: 15px;
+        letter-spacing: 1.5px;
+        margin-bottom: 10px;
         display: block;
         text-align: center;
-        text-shadow: 0 0 8px rgba(0,200,100,0.4);
+        opacity: 0.9;
     }
 
-    /* --- 4. TYPOGRAPHY --- */
-    h1, h2, h3 { color: #ffffff !important; font-weight: 800; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-    p, label, li, .stMarkdown, .stExpander p { color: #cccccc !important; }
-
-    /* --- 5. BUTTONS --- */
-    div.stButton > button {
-        background: linear-gradient(135deg, #3a3a3a 50%, #1a1a1a 100%);
-        color: #ffffff !important;
-        border-radius: 12px;
-        border: none;
-        padding: 14px 24px;
+    /* --- 4. TYPOGRAPHY (Clean & Spacious) --- */
+    h1 {
+        font-family: sans-serif;
         font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        width: 100%;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        color: #ffffff !important;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.5rem;
     }
-    div.stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-        background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
+    h2, h3, h4, h5 {
+        font-family: sans-serif;
+        font-weight: 600;
+        color: #f0f0f0 !important;
+    }
+    p, label, li, .stMarkdown, .stExpander p {
+        color: #b0b0b0 !important;
+        font-size: 15px;
+        line-height: 1.6;
     }
 
-    /* --- 6. CLEANUP --- */
+    /* --- 5. BUTTONS (One UI Pill Shape) --- */
+    div.stButton > button {
+        background-color: #3e3e3e;
+        color: #ffffff !important;
+        border-radius: 50px; /* Full Pill Shape */
+        border: none;
+        padding: 16px 32px; /* Taller, comfortable touch targets */
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: capitalize; /* Cleaner look than uppercase */
+        width: 100%;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        box-shadow: none; /* Flat design */
+    }
+    
+    div.stButton > button:hover {
+        background-color: #505050;
+        transform: translateY(-2px);
+    }
+    
+    div.stButton > button:active {
+        transform: scale(0.98);
+        background-color: #303030;
+    }
+
+    /* --- 6. FILE UPLOADER (Integrated Look) --- */
+    [data-testid="stFileUploader"] {
+        background-color: #1e1e1e;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px dashed #444;
+        transition: border-color 0.3s;
+    }
+    [data-testid="stFileUploader"]:hover {
+        border-color: #666;
+    }
+
+    /* --- 7. CLEANUP & LAYOUT --- */
     #MainMenu, header, footer {visibility: hidden;}
-    .block-container { max-width: 1000px; padding-top: 3rem; padding-bottom: 3rem; }
-    div[data-testid="stImage"] { display: block; margin: auto; border-radius: 16px; overflow: hidden; }
-    div[data-testid="stExpander"] div[role="button"] p { font-size: 1.1rem; font-weight: 600; color: #ffffff !important; }
-    [data-testid="stFileUploader"] { padding-top: 1rem; }
+    
+    .block-container {
+        max-width: 900px;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+    
+    /* Rounded Images */
+    div[data-testid="stImage"] img {
+        border-radius: 24px;
+    }
+    
+    /* Expander styling to match cards */
+    div[data-testid="stExpander"] {
+        background-color: transparent;
+        border: none;
+    }
+    div[data-testid="stExpander"] summary {
+        color: #e0e0e0 !important;
+        font-weight: 600;
+    }
     </style>
 """, unsafe_allow_html=True)
 
