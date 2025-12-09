@@ -58,7 +58,7 @@ st.markdown("""
 
     /* --- 5. BUTTONS --- */
     div.stButton > button {
-        background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #3a3a3a 50%, #1a1a1a 100%);
         color: #ffffff !important;
         border-radius: 12px;
         border: none;
@@ -139,9 +139,9 @@ with col_main:
 
     # Input Toggle Buttons
     tog_c1, tog_c2 = st.columns(2)
-    # with tog_c1:
-        # if st.button("📁 Upload File", help="Select an image from your device"):
-            # st.session_state['camera_active'] = False
+    with tog_c1:
+         if st.button("📁 Upload File", help="Select an image from your device"):
+             st.session_state['camera_active'] = False
     with tog_c2:
         cam_label = "📸 Close Camera" if st.session_state['camera_active'] else "📸 Open Scanner"
         if st.button(cam_label, help="Activate your device camera"):
