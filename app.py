@@ -298,7 +298,7 @@ with st.expander("ℹ️ How to Use This Scanner"):
     """)
 
 # MAIN CONTROLS (Single Glass Card Container)
-st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+#st.markdown('<div class="glass-card">', unsafe_allow_html=True)
 
 # Two columns for buttons (Side by Side)
 col_btn1, col_btn2 = st.columns(2)
