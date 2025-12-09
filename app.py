@@ -18,15 +18,36 @@ st.set_page_config(
 # ----------------------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* --- 1. ANIMATED DARK BACKGROUND (Kept as requested) --- */
+    /* --- 1. ANIMATED DARK BACKGROUND (Enhanced for All Platforms) --- */
     [data-testid="stAppViewContainer"] {
         background: linear-gradient(160deg, #111111, #000000, #1a1a1a);
         background-size: 300% 300%;
         animation: gradientBG 15s ease infinite;
         color: #f5f5f5;
+        /* Ensure compatibility across platforms */
+        -webkit-animation: gradientBG 15s ease infinite;
+        -moz-animation: gradientBG 15s ease infinite;
+        -o-animation: gradientBG 15s ease infinite;
     }
     
     @keyframes gradientBG {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+    
+    /* Vendor prefixes for broader support */
+    @-webkit-keyframes gradientBG {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+    @-moz-keyframes gradientBG {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+    @-o-keyframes gradientBG {
         0% {background-position: 0% 50%;}
         50% {background-position: 100% 50%;}
         100% {background-position: 0% 50%;}
@@ -42,15 +63,18 @@ st.markdown("""
         font-size: 16px !important;
         font-weight: 600 !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-        transition: all 0.2s ease-in-out !important;
+        transition: all 0.3s ease-in-out !important;
         width: 100%;
+        position: relative;
+        overflow: hidden;
     }
     
-    /* Hover State */
+    /* Hover State with Glow */
     div.stButton > button:hover {
         background: linear-gradient(135deg, #444444 0%, #333333 100%) !important;
         transform: scale(1.02);
         border-color: rgba(255,255,255,0.3) !important;
+        box-shadow: 0 6px 20px rgba(255,255,255,0.1) !important;
     }
     
     /* Active/Click State */
@@ -58,8 +82,23 @@ st.markdown("""
         transform: scale(0.98);
         background: #111111 !important;
     }
+    
+    /* Subtle Button Animation */
+    div.stButton > button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s;
+    }
+    div.stButton > button:hover::before {
+        left: 100%;
+    }
 
-    /* --- 3. GLASS CARDS (One UI "Bubbles") --- */
+    /* --- 3. GLASS CARDS (One UI "Bubbles" with Fade-In Animation) --- */
     .glass-card {
         background-color: rgba(30, 30, 30, 0.6);
         border-radius: 26px;
@@ -69,13 +108,56 @@ st.markdown("""
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        animation: fadeInUp 0.8s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Fade-in animation for cards */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Subtle glow on hover for cards */
+    .glass-card:hover {
+        box-shadow: 0 12px 40px 0 rgba(255, 255, 255, 0.1);
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
     }
 
-    /* --- 4. TYPOGRAPHY --- */
-    h1 { font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
-    h2, h3 { font-weight: 700; color: #f0f0f0 !important; }
-    p, label, li { color: #cccccc !important; font-size: 15px; line-height: 1.6; }
+    /* --- 4. TYPOGRAPHY with Text Shadows --- */
+    h1 { 
+        font-weight: 800; 
+        letter-spacing: -1px; 
+        margin-bottom: 10px; 
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        animation: textGlow 2s ease-in-out infinite alternate;
+    }
+    h2, h3 { 
+        font-weight: 700; 
+        color: #f0f0f0 !important; 
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    p, label, li { 
+        color: #cccccc !important; 
+        font-size: 15px; 
+        line-height: 1.6; 
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
     
+    /* Text glow animation for header */
+    @keyframes textGlow {
+        from { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        to { text-shadow: 0 2px 10px rgba(255,255,255,0.2), 0 0 20px rgba(255,255,255,0.1); }
+    }
+
     /* --- 5. CLEANUP (Removes extra spacing) --- */
     .block-container { 
         padding-top: 3rem; 
@@ -86,15 +168,83 @@ st.markdown("""
     /* Hide Header/Footer */
     #MainMenu, header, footer {visibility: hidden;}
     
-    /* Center Images */
-    div[data-testid="stImage"] { display: block; margin: auto; }
-    div[data-testid="stImage"] img { border-radius: 20px; }
+    /* Center Images with Subtle Animation */
+    div[data-testid="stImage"] { 
+        display: block; 
+        margin: auto; 
+        animation: imageFadeIn 1s ease-out;
+    }
+    div[data-testid="stImage"] img { 
+        border-radius: 20px; 
+        transition: transform 0.3s ease;
+    }
+    div[data-testid="stImage"] img:hover {
+        transform: scale(1.05);
+    }
     
-    /* File Uploader Style */
+    /* Image fade-in */
+    @keyframes imageFadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* File Uploader Style with Animation */
     [data-testid="stFileUploader"] {
         background-color: rgba(255,255,255,0.05);
         border-radius: 20px;
         padding: 15px;
+        transition: background-color 0.3s ease;
+    }
+    [data-testid="stFileUploader"]:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+    
+    /* --- 6. ADDITIONAL AESTHETIC ELEMENTS --- */
+    /* Floating particles effect (subtle) */
+    .floating-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+    }
+    .particle {
+        position: absolute;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        animation: float 10s infinite linear;
+    }
+    .particle:nth-child(1) { width: 4px; height: 4px; top: 10%; left: 10%; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 6px; height: 6px; top: 20%; left: 80%; animation-delay: 2s; }
+    .particle:nth-child(3) { width: 3px; height: 3px; top: 70%; left: 20%; animation-delay: 4s; }
+    .particle:nth-child(4) { width: 5px; height: 5px; top: 50%; left: 60%; animation-delay: 6s; }
+    .particle:nth-child(5) { width: 4px; height: 4px; top: 90%; left: 90%; animation-delay: 8s; }
+    
+    @keyframes float {
+        0% { transform: translateY(0px) rotate(0deg); opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+    
+    /* Add particles to the main container */
+    [data-testid="stAppViewContainer"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+        animation: particleMove 20s linear infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    @keyframes particleMove {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-100px); }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -148,7 +298,7 @@ with st.expander("ℹ️ How to Use This Scanner"):
     """)
 
 # MAIN CONTROLS (Single Glass Card Container)
-#st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+st.markdown('<div class="glass-card">', unsafe_allow_html=True)
 
 # Two columns for buttons (Side by Side)
 col_btn1, col_btn2 = st.columns(2)
